@@ -17,7 +17,7 @@ class Conductor {
     //Create a midi object referring to the class AKMIDI()
     let midi = AKMIDI()
     //Create a new sampler object of type AKAppleSampler
-    var sampler: MIDIFileInstrument
+    var sampler: AKSampler
     var midiFile: AKAppleSequencer!
     var midiFileConnector: AKMIDINode!
     var reverb: AKReverb!
@@ -37,9 +37,6 @@ class Conductor {
         
         //Default function to open the output port
         midi.openOutput()
-
-        // Session settings
-        AKAudioFile.cleanTempDirectory()
         
         //Buffer length = amount of samples/time - quality of rendering - increases latency the more you increase it
         AKSettings.bufferLength = .short
@@ -47,7 +44,7 @@ class Conductor {
         //Set the volume property of our new sampler object
         
         //Sampler Object - Allows us to play a soundfont as an instrument
-        sampler = MIDIFileInstrument()
+        sampler = AKSampler()
 
         // Set up the AKSampler
         setupSampler()
@@ -55,9 +52,9 @@ class Conductor {
         reverb = AKReverb(sampler, dryWetMix: 0.5)
 
         // Set Output & Start AudioKit
-        AudioKit.output = reverb
+        AKManager.output = reverb
         do {
-            try AudioKit.start()
+            try AKManager.start()
         } catch {
         }
     }
@@ -113,32 +110,4 @@ class Conductor {
                                                        sfzFileName: sfzFiles[byIndex])
     }
 
-}
-
-class MIDIFileInstrument: AKSampler {
-    
-    override func play(noteNumber: MIDINoteNumber, velocity: MIDIVelocity, channel: MIDIChannel = 0) {
-        
-        DispatchQueue.main.async {
-            buttonDict[Int(noteNumber)]?.isHighlighted = true
-        }
-        
-        let gqueue = DispatchQueue(label: "graphics-queue", qos: .userInteractive)
-        
-        gqueue.async {
-            super.play(noteNumber: noteNumber, velocity: velocity)
-        }
-    }
-    override func stop(noteNumber: MIDINoteNumber) {
-        
-        DispatchQueue.main.async {
-            buttonDict[Int(noteNumber)]?.isHighlighted = false
-        }
-        
-        let gqueue = DispatchQueue(label: "graphics-queue", qos: .userInteractive)
-        
-        gqueue.async {
-            super.stop(noteNumber: noteNumber)
-        }
-    }
 }
