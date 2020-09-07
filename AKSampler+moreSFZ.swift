@@ -101,8 +101,7 @@ extension AKSampler {
                             if fileMgr.fileExists(atPath: compressedFileURL.path) {
                                 loadCompressedSampleFile(from: AKSampleFileDescriptor(sampleDescriptor: sd, path: compressedFileURL.path))
                             } else {
-                                let sampleFile = try AKAudioFile(forReading: sampleFileURL)
-                                loadAKAudioFile(from: sd, file: sampleFile)
+                                
                             }
                         }
                     }
